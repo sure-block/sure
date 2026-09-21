@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================
-# ddmer-1 博客 服务器一键部署脚本
+# sure 博客 服务器一键部署脚本
 # 适用系统：Ubuntu / Debian / CentOS
 # 使用方式：chmod +x deploy.sh && ./deploy.sh
 # =============================================
@@ -14,7 +14,7 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}  ddmer-1 博客 服务器部署脚本${NC}"
+echo -e "${GREEN}  sure 博客 服务器部署脚本${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
 
@@ -106,7 +106,7 @@ echo ""
 echo -e "${GREEN}构建完成！正在使用 PM2 启动服务...${NC}"
 
 # 停止旧进程（如果存在）
-pm2 delete ddmer-blog 2>/dev/null || true
+pm2 delete sure-blog 2>/dev/null || true
 
 # 启动新进程
 pm2 start ecosystem.config.js
@@ -121,9 +121,9 @@ echo -e "  访问地址: http://你的服务器IP:3000"
 echo -e "  后台地址: http://你的服务器IP:3000/admin"
 echo ""
 echo -e "${YELLOW}常用命令：${NC}"
-echo -e "  查看日志:  pm2 logs ddmer-blog"
-echo -e "  重启服务:  pm2 restart ddmer-blog"
-echo -e "  停止服务:  pm2 stop ddmer-blog"
+echo -e "  查看日志:  pm2 logs sure-blog"
+echo -e "  重启服务:  pm2 restart sure-blog"
+echo -e "  停止服务:  pm2 stop sure-blog"
 echo -e "  查看状态:  pm2 status"
 echo ""
 echo -e "${YELLOW}下一步：${NC}"
