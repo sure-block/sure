@@ -40,7 +40,7 @@
 
 1. 打开原仓库页面（按你 fork 的来源，URL 自带）。
 2. 点右上角的 **Fork** 按钮。
-3. 选择你的 GitHub 账号，确认仓库名（默认是 `Kirameku` 或 `ddmer-1`，可改可不改）。
+3. 选择你的 GitHub 账号，确认仓库名（默认是 `Kirameku` 或 `sure`，可改可不改）。
 4. Fork 完成后，在你账号下会出现一个 `https://github.com/<你的用户名>/<仓库名>` 的仓库。
 
 > 不要勾选 "Only fork the default branch" 之类的复选框，全部分支都拿过来。
