@@ -165,7 +165,7 @@ CREATE TABLE IF NOT EXISTS "Photo" (
 CREATE TABLE IF NOT EXISTS "Project" (
     "id" SERIAL PRIMARY KEY,
     "name" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
+    "slug" TEXT NOT NULL UNIQUE,
     "description" TEXT NOT NULL DEFAULT '',
     "long_description" TEXT NOT NULL DEFAULT '',
     "cover_image" TEXT NOT NULL DEFAULT '',
@@ -239,7 +239,7 @@ CREATE TABLE IF NOT EXISTS "Music" (
 -- CreateTable
 CREATE TABLE IF NOT EXISTS "SiteConfig" (
     "id" SERIAL PRIMARY KEY,
-    "key" TEXT NOT NULL,
+    "key" TEXT NOT NULL UNIQUE,
     "value" TEXT NOT NULL DEFAULT '',
     "description" TEXT NOT NULL DEFAULT '',
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -282,8 +282,8 @@ CREATE TABLE IF NOT EXISTS "login_log" (
 -- CreateTable
 CREATE TABLE IF NOT EXISTS "book_category" (
     "id" SERIAL PRIMARY KEY,
-    "name" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
+    "name" TEXT NOT NULL UNIQUE,
+    "slug" TEXT NOT NULL UNIQUE,
     "description" TEXT NOT NULL DEFAULT '',
     "sort" INTEGER NOT NULL DEFAULT 0,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -323,7 +323,7 @@ CREATE TABLE IF NOT EXISTS "book_chapter" (
 -- CreateTable
 CREATE TABLE IF NOT EXISTS "reading_progress" (
     "id" SERIAL PRIMARY KEY,
-    "book_id" INTEGER NOT NULL,
+    "book_id" INTEGER NOT NULL UNIQUE,
     "chapter_id" INTEGER,
     "chapter_title" TEXT NOT NULL DEFAULT '',
     "position" REAL NOT NULL DEFAULT 0,
@@ -403,7 +403,7 @@ CREATE INDEX IF NOT EXISTS "email_verification_code_idx" ON "email_verification"
 -- 首次登录后请立即在后台修改密码！
 -- 已存在则跳过，可安全重复执行
 INSERT INTO "user" ("username", "hashed_password", "nickname", "is_admin", "created_at", "updated_at")
-VALUES ('admin', '$2b$10$xBxWjZyDA9xSdohWB181Gei6uHBRrpjAsjH3/6ft47hnbACr/ZUvi', '管理员', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+VALUES ('admin', '$2b$10$xBxWjZyDA9xSdohWB181Gei6uHBRrpjAsjH3/6ft47hnbACr/ZUvi', 'Admin', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 ON CONFLICT ("username") DO NOTHING;
 
 -- SeedData: 默认站点配置（首次搭建可直接使用）
@@ -414,6 +414,7 @@ VALUES
   ('authorName', 'Admin', '作者名', CURRENT_TIMESTAMP),
   ('bio', '欢迎来到我的博客', '个人简介', CURRENT_TIMESTAMP),
   ('avatarUrl', 'https://filez.20130825.xyz/icon.jpg', '头像图片地址', CURRENT_TIMESTAMP),
+  ('websiteUrl', '', '头像点击跳转链接（空则不跳转）', CURRENT_TIMESTAMP),
   ('useGradient', 'false', '是否使用渐变背景', CURRENT_TIMESTAMP),
   ('themeColors', '["#a18cd1","#fbc2eb","#a1c4fd","#c2e9fb"]', '主题颜色数组', CURRENT_TIMESTAMP),
   ('bgImages', '[]', '背景图片地址数组（JSON）', CURRENT_TIMESTAMP),
@@ -432,5 +433,5 @@ VALUES
   ('moeIcp_name', '', '萌ICP备案号', CURRENT_TIMESTAMP),
   ('moeIcp_link', '', '萌ICP备案链接', CURRENT_TIMESTAMP),
   ('chatterTitle', '留言', '说说/留言页面标题', CURRENT_TIMESTAMP),
-  ('chatterDescription', '生活、技术、随想的碎片记录', '说说/留言页面描述', CURRENT_TIMESTAMP)
+  ('chatterDescription', '记录生活、技术与随想', '说说/留言页面描述', CURRENT_TIMESTAMP)
 ON CONFLICT ("key") DO NOTHING;
