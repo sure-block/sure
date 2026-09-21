@@ -1,83 +1,38 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { getDbSiteConfig } from "@/app/lib/site-config-db";
+import { siteConfig } from "@/siteConfig";
 
-export function middleware(request: NextRequest) {
-  const response = NextResponse.next();
-  const url = request.nextUrl;
+export async function middleware(request: NextRequest) {
+  // 只处理对 HTML 文档的请求（排除静态资源和 API）
+  const accept = request.headers.get("accept") || "";
+  const isHtmlRequest = accept.includes("text/html");
+  const isApiRequest = request.nextUrl.pathname.startsWith("/api/");
 
-  // ── 安全响应头 ──
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("X-Frame-Options", "DENY");
-  response.headers.set("X-XSS-Protection", "0"); // 现代浏览器已弃用，设为 0 避免误报
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set(
-    "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=()"
-  );
-
-  // 生产环境强制 HTTPS
-  if (process.env.NODE_ENV === "production") {
-    response.headers.set(
-      "Strict-Transport-Security",
-      "max-age=31536000; includeSubDomains; preload"
-    );
+  if (!isHtmlRequest || isApiRequest) {
+    return NextResponse.next();
   }
 
-  // ── API 路由缓存策略 ──
-  if (url.pathname.startsWith("/api/")) {
-    // 公共只读 API：CDN 缓存 60 秒
-    const publicGetPaths = [
-      "/api/posts",
-      "/api/categories",
-      "/api/tags",
-      "/api/chatters",
-      "/api/messages/count",
-      "/api/friend-links/public",
-      // 注意: /api/site-config/list 需要认证，不应公开缓存
-      // "/api/site-config/list",
-      "/api/albums",
-      "/api/projects",
-      "/api/bookmarks",
-      "/api/music",
-      "/api/dashboard/profile-stats",
-      "/api/visitors/record",
-    ];
+  try {
+    const dbConfig = await getDbSiteConfig();
+    const requestHeaders = new Headers(request.headers);
 
-    const isPublicGet =
-      request.method === "GET" &&
-      publicGetPaths.some((p) => url.pathname.startsWith(p));
+    const title = dbConfig.title || siteConfig.title;
+    const bio = dbConfig.bio || siteConfig.bio;
+    const authorName = dbConfig.authorName || siteConfig.authorName;
+    const avatarUrl = dbConfig.avatarUrl || siteConfig.avatarUrl;
 
-    if (isPublicGet) {
-      response.headers.set(
-        "Cache-Control",
-        "public, max-age=60, stale-while-revalidate=30"
-      );
-    } else if (request.method === "GET") {
-      // 其他 GET API（如单个资源）：不缓存
-      response.headers.set("Cache-Control", "no-store, must-revalidate");
-    }
+    requestHeaders.set("x-site-title", title);
+    requestHeaders.set("x-site-bio", bio);
+    requestHeaders.set("x-site-author", authorName);
+    requestHeaders.set("x-site-avatar", avatarUrl);
+
+    return NextResponse.next({
+      request: { headers: requestHeaders },
+    });
+  } catch (error) {
+    console.error("Middleware error:", error);
+    return NextResponse.next();
   }
-
-  // ── 静态资源长缓存 ──
-  if (
-    url.pathname.startsWith("/admin/static") ||
-    url.pathname.match(/\.(js|css|woff2?|ttf|svg|ico)$/)
-  ) {
-    response.headers.set(
-      "Cache-Control",
-      "public, max-age=31536000, immutable"
-    );
-  }
-
-  // ── 图片资源缓存 ──
-  if (url.pathname.startsWith("/images/") || url.pathname.startsWith("/uploads/")) {
-    response.headers.set(
-      "Cache-Control",
-      "public, max-age=86400, stale-while-revalidate=3600"
-    );
-  }
-
-  return response;
 }
 
 export const config = {
