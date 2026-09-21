@@ -5,7 +5,7 @@ import editForm from "../form/index.vue";
 import { zxcvbn } from "@zxcvbn-ts/core";
 import { handleTree } from "@/utils/tree";
 import { message } from "@/utils/message";
-import userAvatar from "@/assets/user.jpg";
+const DEFAULT_AVATAR = "https://filez.20130825.xyz/icon.jpg";
 import { usePublicHooks } from "../../hooks";
 import { addDialog } from "@/components/ReDialog";
 import type { PaginationProps } from "@pureadmin/table";
@@ -86,8 +86,8 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
         <el-image
           fit="cover"
           preview-teleported={true}
-          src={row.avatar || userAvatar}
-          preview-src-list={Array.of(row.avatar || userAvatar)}
+          src={row.avatar || DEFAULT_AVATAR}
+          preview-src-list={Array.of(row.avatar || DEFAULT_AVATAR)}
           class="size-6 rounded-full align-middle"
         />
       ),
@@ -372,7 +372,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       contentRenderer: () =>
         h(ReCropperPreview, {
           ref: cropRef,
-          imgSrc: row.avatar || userAvatar,
+          imgSrc: row.avatar || DEFAULT_AVATAR,
           onCropper: info => (avatarInfo.value = info)
         }),
       beforeSure: done => {

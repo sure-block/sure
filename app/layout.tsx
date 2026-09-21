@@ -43,6 +43,11 @@ export async function generateMetadata(): Promise<Metadata> {
     return {
       title: dbConfig.title || siteConfig.title,
       description: dbConfig.bio || siteConfig.bio,
+      icons: {
+        icon: "https://filez.20130825.xyz/icon.jpg",
+        shortcut: "https://filez.20130825.xyz/icon.jpg",
+        apple: "https://filez.20130825.xyz/icon.jpg",
+      },
       alternates: {
         types: {
           "application/rss+xml": "/feed",
@@ -53,6 +58,11 @@ export async function generateMetadata(): Promise<Metadata> {
     return {
       title: siteConfig.title,
       description: siteConfig.bio,
+      icons: {
+        icon: "https://filez.20130825.xyz/icon.jpg",
+        shortcut: "https://filez.20130825.xyz/icon.jpg",
+        apple: "https://filez.20130825.xyz/icon.jpg",
+      },
       alternates: {
         types: {
           "application/rss+xml": "/feed",

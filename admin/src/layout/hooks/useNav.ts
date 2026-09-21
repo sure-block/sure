@@ -2,7 +2,6 @@ import { storeToRefs } from "pinia";
 import { getConfig } from "@/config";
 import { useRouter } from "vue-router";
 import { emitter } from "@/utils/mitt";
-import Avatar from "@/assets/user.jpg";
 import { getTopMenu } from "@/router/utils";
 import { useFullscreen } from "@vueuse/core";
 import type { routeMetaType } from "../types";
@@ -16,6 +15,8 @@ import { useEpThemeStoreHook } from "@/store/modules/epTheme";
 import { usePermissionStoreHook } from "@/store/modules/permission";
 import ExitFullscreen from "~icons/ri/fullscreen-exit-fill";
 import Fullscreen from "~icons/ri/fullscreen-fill";
+
+const DEFAULT_AVATAR = "https://filez.20130825.xyz/icon.jpg";
 
 const errorInfo =
   "The current routing configuration is incorrect, please check the configuration";
@@ -38,10 +39,10 @@ export function useNav() {
     };
   });
 
-  /** 头像（如果头像为空则使用 src/assets/user.jpg ） */
+  /** 头像（如果头像为空则使用默认头像） */
   const userAvatar = computed(() => {
     return isAllEmpty(useUserStoreHook()?.avatar)
-      ? Avatar
+      ? DEFAULT_AVATAR
       : useUserStoreHook()?.avatar;
   });
 
@@ -144,7 +145,7 @@ export function useNav() {
 
   /** 获取`logo` */
   function getLogo() {
-    return `${import.meta.env.BASE_URL}icon.png`;
+    return "https://filez.20130825.xyz/icon.jpg";
   }
 
   return {
