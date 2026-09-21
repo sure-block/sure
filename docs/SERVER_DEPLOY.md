@@ -119,10 +119,10 @@ docker --version
 cd /opt
 
 # 下载项目（替换成你自己的仓库地址）
-git clone https://github.com/你的用户名/ddmer-1.git
+git clone https://github.com/你的用户名/sure.git
 
 # 进入项目目录
-cd ddmer-1/ddmer-1-main
+cd sure/sure-main
 ```
 
 ### 第 3 步：配置环境变量
@@ -145,7 +145,7 @@ nano .env
 
 ```env
 # 数据库（Docker 自带数据库，但你也可以用外部的）
-DATABASE_URL=postgresql://ddmer:ddmer_password_change_me@db:5432/ddmer_blog?schema=public
+DATABASE_URL=postgresql://sure:sure_password_change_me@db:5432/sure_blog?schema=public
 
 # JWT 密钥（第 6 步生成的）
 SECRET_KEY=你生成的随机字符串
@@ -284,9 +284,9 @@ systemctl start postgresql
 systemctl enable postgresql
 
 # 创建数据库和用户
-sudo -u postgres psql -c "CREATE USER ddmer WITH PASSWORD '你的数据库密码';"
-sudo -u postgres psql -c "CREATE DATABASE ddmer_blog OWNER ddmer;"
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE ddmer_blog TO ddmer;"
+sudo -u postgres psql -c "CREATE USER sure WITH PASSWORD '你的数据库密码';"
+sudo -u postgres psql -c "CREATE DATABASE sure_blog OWNER sure;"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE sure_blog TO sure;"
 ```
 
 ### 第 3 步：下载项目代码
@@ -296,8 +296,8 @@ sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE ddmer_blog TO ddmer;"
 cd /opt
 
 # 下载项目
-git clone https://github.com/你的用户名/ddmer-1.git
-cd ddmer-1/ddmer-1-main
+git clone https://github.com/你的用户名/sure.git
+cd sure/sure-main
 ```
 
 ### 第 4 步：配置环境变量
@@ -310,7 +310,7 @@ nano .env
 修改内容和 Docker 方式基本一样，**但 `DATABASE_URL` 要指向本地 PostgreSQL**：
 
 ```env
-DATABASE_URL=postgresql://ddmer:你的数据库密码@localhost:5432/ddmer_blog?schema=public
+DATABASE_URL=postgresql://sure:你的数据库密码@localhost:5432/sure_blog?schema=public
 ```
 
 其他变量和 Docker 方式完全一样。
@@ -345,13 +345,13 @@ chmod +x deploy.sh
 pm2 status
 
 # 查看日志
-pm2 logs ddmer-blog
+pm2 logs sure-blog
 
 # 重启
-pm2 restart ddmer-blog
+pm2 restart sure-blog
 
 # 停止
-pm2 stop ddmer-blog
+pm2 stop sure-blog
 
 # 更新代码后重新部署
 git pull
@@ -464,7 +464,7 @@ FRONTEND_ORIGIN=https://你的域名.com
 ```
 
 Docker 方式：修改 `.env` 后执行 `docker compose restart app`
-PM2 方式：修改 `.env` 后执行 `pm2 restart ddmer-blog`
+PM2 方式：修改 `.env` 后执行 `pm2 restart sure-blog`
 
 ---
 
@@ -474,7 +474,7 @@ PM2 方式：修改 `.env` 后执行 `pm2 restart ddmer-blog`
 
 1. 查看应用日志：
    - Docker：`docker compose logs -f app`
-   - PM2：`pm2 logs ddmer-blog`
+   - PM2：`pm2 logs sure-blog`
 2. 检查 `.env` 里的 `DATABASE_URL` 是否正确
 3. 检查数据库是否正常运行
 
