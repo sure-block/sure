@@ -4,15 +4,15 @@ services:
     image: postgres:16-alpine
     restart: always
     environment:
-      POSTGRES_USER: ddmer
-      POSTGRES_PASSWORD: ddmer_password_change_me
-      POSTGRES_DB: ddmer_blog
+      POSTGRES_USER: sure
+      POSTGRES_PASSWORD: sure_password_change_me
+      POSTGRES_DB: sure_blog
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ddmer -d ddmer_blog"]
+      test: ["CMD-SHELL", "pg_isready -U sure -d sure_blog"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -28,7 +28,7 @@ services:
       - "3000:3000"
     environment:
       # 数据库连接（指向上面的 db 容器）
-      DATABASE_URL: postgresql://ddmer:ddmer_password_change_me@db:5432/ddmer_blog?schema=public
+      DATABASE_URL: postgresql://sure:sure_password_change_me@db:5432/sure_blog?schema=public
 
       # 以下变量请替换为你自己的值
       SECRET_KEY: ${SECRET_KEY:-change-me-to-a-random-secret-key-at-least-32-characters}

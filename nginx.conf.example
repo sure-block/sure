@@ -1,9 +1,9 @@
 # =============================================
-# ddmer-1 博客 Nginx 反向代理配置
+# sure 博客 Nginx 反向代理配置
 # 使用方法：
-#   1. 复制此文件到 /etc/nginx/sites-available/ddmer-blog
+#   1. 复制此文件到 /etc/nginx/sites-available/sure-blog
 #   2. 修改 server_name 和 ssl_certificate 路径
-#   3. 创建软链接：ln -s /etc/nginx/sites-available/ddmer-blog /etc/nginx/sites-enabled/
+#   3. 创建软链接：ln -s /etc/nginx/sites-available/sure-blog /etc/nginx/sites-enabled/
 #   4. 测试配置：nginx -t
 #   5. 重载 Nginx：nginx -s reload
 # =============================================

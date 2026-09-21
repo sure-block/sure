@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "ddmer-blog",
+      name: "sure-blog",
       script: "node_modules/.bin/next",
       args: "start",
       cwd: __dirname,

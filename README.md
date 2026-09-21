@@ -1,4 +1,4 @@
-# Ddmer の小站
+# Sure の小站
 
 基于 [Starhiro](https://github.com/Xinghongia) 开源博客项目进行二次开发与个性化修改的个人博客。
 
