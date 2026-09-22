@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted } from "vue";
 import { message as msg } from "@/utils/message";
-import { getToken, formatToken } from "@/utils/auth";
 import { http } from "@/utils/http";
+import { uploadImage } from "@/api/album";
 import {
   getAllSiteConfig,
   updateSiteConfig,
@@ -48,13 +48,6 @@ const rules = {
   key: [{ required: true, message: "请输入配置键名", trigger: "blur" }],
   value: [{ required: true, message: "请输入配置值", trigger: "blur" }]
 };
-
-const uploadHeaders = computed(() => {
-  const token = getToken();
-  return {
-    Authorization: token ? formatToken(token.accessToken) : ""
-  };
-});
 
 const columns: TableColumnList = [
   { label: "ID", prop: "id", width: 60 },
@@ -196,38 +189,97 @@ async function deleteOldFile(url: string) {
   }
 }
 
-// 单图上传成功
-function onSingleImageSuccess(response: any) {
-  if (response?.url) {
+// 压缩/缩放图片：最大 2000px 宽/高，GIF、SVG 跳过压缩
+function compressImage(file: File): Promise<File> {
+  if (file.type === "image/gif" || file.type === "image/svg+xml") {
+    return Promise.resolve(file);
+  }
+
+  const outputType = file.type === "image/png" ? "image/png" : "image/jpeg";
+  const quality = outputType === "image/png" ? undefined : 0.8;
+
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 2000;
+        let { width, height } = img;
+        if (width > MAX || height > MAX) {
+          const ratio = Math.min(MAX / width, MAX / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return resolve(file);
+        // PNG 保留透明通道：不填充背景
+        if (outputType !== "image/png") {
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, width, height);
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          blob => {
+            if (!blob) return resolve(file);
+            const ext = outputType === "image/png" ? "png" : "jpg";
+            const name = file.name.replace(/\.[^.]+$/, `.${ext}`);
+            resolve(new File([blob], name, { type: outputType }));
+          },
+          outputType,
+          quality
+        );
+      };
+      img.onerror = () => resolve(file);
+      img.src = reader.result as string;
+    };
+    reader.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+}
+
+// 单图上传：走 Axios（自动携带并刷新 token），与照片墙等其他页面上传方式保持一致
+async function handleSingleImageUpload(options: any) {
+  const file = options.file;
+  if (!file) return;
+  try {
+    const compressed = await compressImage(file);
+    const res = await uploadImage(compressed);
     const oldUrl = form.value.value;
-    form.value.value = response.url;
+    form.value.value = res.url;
+    options.onSuccess({ url: res.url });
     if (oldUrl && oldUrl.startsWith("/uploads/")) {
       deleteOldFile(oldUrl);
     }
+    msg("上传成功", { type: "success" });
+  } catch (e: any) {
+    options.onError(e);
+    const errorMsg = e?.response?.data?.error || e?.message || "图片上传失败";
+    msg(errorMsg, { type: "error" });
+    console.error("[site-config] 单图上传失败:", e);
   }
 }
 
-// 单图上传失败
-function onSingleImageError(err: any) {
-  const errorMsg = err?.response?.data?.error || err?.message || "图片上传失败";
-  msg(errorMsg, { type: "error" });
-  console.error("[site-config] 单图上传失败:", err);
-}
-
-// 多图上传成功
-function onMultiImageSuccess(response: any, uploadFile: any) {
-  if (response?.url && uploadFile) {
-    uploadFile.url = response.url;
+// 多图上传：走 Axios（自动携带并刷新 token）
+async function handleMultiImageUpload(options: any) {
+  const file = options.file;
+  if (!file) return;
+  try {
+    const compressed = await compressImage(file);
+    const res = await uploadImage(compressed);
+    // 通知 el-upload 成功，file.response 会写入 url，供删除与保存时读取
+    options.onSuccess({ url: res.url });
     // 同步更新 form.value，确保表单验证正确
     syncMultiImageValue();
+  } catch (e: any) {
+    options.onError(e);
+    const errorMsg =
+      e?.response?.data?.error || e?.message || `${file.name || "图片"}上传失败`;
+    msg(errorMsg, { type: "error" });
+    console.error("[site-config] 多图上传失败:", e);
   }
-}
-
-// 多图上传失败
-function onMultiImageError(err: any, uploadFile: any) {
-  const errorMsg = err?.response?.data?.error || err?.message || `${uploadFile?.name || "图片"}上传失败`;
-  msg(errorMsg, { type: "error" });
-  console.error("[site-config] 多图上传失败:", err);
 }
 
 // 多图删除时清理服务器文件
@@ -400,11 +452,8 @@ onMounted(() => onSearch());
           </el-form-item>
           <el-form-item label="更换图片">
             <el-upload
-              action="/api/upload/image"
-              :headers="uploadHeaders"
+              :http-request="handleSingleImageUpload"
               :show-file-list="false"
-              :on-success="onSingleImageSuccess"
-              :on-error="onSingleImageError"
               accept="image/*"
             >
               <el-button type="primary">上传新图片</el-button>
@@ -422,11 +471,8 @@ onMounted(() => onSearch());
           <el-form-item label="图片列表" prop="value">
             <el-upload
               v-model:file-list="imageFileList"
-              action="/api/upload/image"
-              :headers="uploadHeaders"
+              :http-request="handleMultiImageUpload"
               list-type="picture-card"
-              :on-success="onMultiImageSuccess"
-              :on-error="onMultiImageError"
               :on-remove="onMultiImageRemove"
               accept="image/*"
             >

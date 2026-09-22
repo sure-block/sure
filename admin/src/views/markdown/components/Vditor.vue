@@ -4,7 +4,8 @@ import Vditor from "vditor";
 import { useDark } from "@pureadmin/utils";
 import { useIntervalFn } from "@vueuse/core";
 import { onMounted, ref, watch, toRaw, onUnmounted } from "vue";
-import { getToken, formatToken } from "@/utils/auth";
+import { uploadImage } from "@/api/album";
+import { message } from "@/utils/message";
 
 const emit = defineEmits([
   "update:modelValue",
@@ -35,9 +36,58 @@ const markdownRef = ref<HTMLElement | null>(null);
 const editorReady = ref(false);
 let pendingValue: string | null = null;
 
-onMounted(() => {
-  const token = getToken()?.accessToken;
+// 压缩/缩放图片：最大 2000px 宽/高，GIF、SVG 跳过压缩
+function compressImage(file: File): Promise<File> {
+  if (file.type === "image/gif" || file.type === "image/svg+xml") {
+    return Promise.resolve(file);
+  }
 
+  const outputType = file.type === "image/png" ? "image/png" : "image/jpeg";
+  const quality = outputType === "image/png" ? undefined : 0.8;
+
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 2000;
+        let { width, height } = img;
+        if (width > MAX || height > MAX) {
+          const ratio = Math.min(MAX / width, MAX / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return resolve(file);
+        // PNG 保留透明通道：不填充背景
+        if (outputType !== "image/png") {
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, width, height);
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          blob => {
+            if (!blob) return resolve(file);
+            const ext = outputType === "image/png" ? "png" : "jpg";
+            const name = file.name.replace(/\.[^.]+$/, `.${ext}`);
+            resolve(new File([blob], name, { type: outputType }));
+          },
+          outputType,
+          quality
+        );
+      };
+      img.onerror = () => resolve(file);
+      img.src = reader.result as string;
+    };
+    reader.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+}
+
+onMounted(() => {
   editor.value = new Vditor(markdownRef.value as HTMLElement, {
     ...props.options,
     value: props.modelValue,
@@ -50,45 +100,25 @@ onMounted(() => {
     // 图片上传配置
     upload: {
       url: "/api/upload/image",
-      headers: token
-        ? {
-            Authorization: formatToken(token)
-          }
-        : {},
-      accept: "image/*",
       fieldName: "file",
-      // 上传成功回调
-      success(editor: Vditor, msg: string) {
-        try {
-          const res = JSON.parse(msg);
-          if (res.url) {
-            // 插入图片到编辑器
-            editor.insertValue(`\n\n![image](${res.url})\n\n`);
-          } else {
-            console.error("[Vditor] 上传返回数据格式异常:", res);
+      accept: "image/*",
+      max: 10 * 1024 * 1024,
+      // 自定义上传：走 Axios（自动携带并刷新 token），与后台其他页面上传方式保持一致
+      async handler(fileList: File[]): Promise<null> {
+        for (const file of fileList) {
+          try {
+            const compressed = await compressImage(file);
+            const res = await uploadImage(compressed);
+            const name = file.name?.replace(/\.[^.]+$/, "") || "image";
+            editor.value?.insertValue(`\n\n![${name}](${res.url})\n\n`);
+          } catch (e: any) {
+            const errorMsg =
+              e?.response?.data?.error || e?.message || "图片上传失败";
+            message(errorMsg, { type: "error" });
+            console.error("[Vditor] 图片上传失败:", e);
           }
-        } catch (e) {
-          console.error("[Vditor] 解析上传响应失败:", e);
         }
-      },
-      // 上传失败回调
-      fail(msg: string) {
-        console.error("[Vditor] 图片上传失败:", msg);
-        try {
-          const res = JSON.parse(msg);
-          if (res.error) {
-            alert("图片上传失败：" + res.error);
-          } else {
-            alert("图片上传失败");
-          }
-        } catch {
-          alert("图片上传失败：" + msg);
-        }
-      },
-      // 上传错误回调
-      error(err: any) {
-        console.error("[Vditor] 图片上传错误:", err);
-        alert("图片上传失败，请检查网络或权限");
+        return null;
       }
     },
     after() {
