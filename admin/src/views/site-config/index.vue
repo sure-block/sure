@@ -207,11 +207,27 @@ function onSingleImageSuccess(response: any) {
   }
 }
 
+// 单图上传失败
+function onSingleImageError(err: any) {
+  const errorMsg = err?.response?.data?.error || err?.message || "图片上传失败";
+  msg(errorMsg, { type: "error" });
+  console.error("[site-config] 单图上传失败:", err);
+}
+
 // 多图上传成功
 function onMultiImageSuccess(response: any, uploadFile: any) {
   if (response?.url && uploadFile) {
     uploadFile.url = response.url;
+    // 同步更新 form.value，确保表单验证正确
+    syncMultiImageValue();
   }
+}
+
+// 多图上传失败
+function onMultiImageError(err: any, uploadFile: any) {
+  const errorMsg = err?.response?.data?.error || err?.message || `${uploadFile?.name || "图片"}上传失败`;
+  msg(errorMsg, { type: "error" });
+  console.error("[site-config] 多图上传失败:", err);
 }
 
 // 多图删除时清理服务器文件
@@ -220,6 +236,17 @@ async function onMultiImageRemove(uploadFile: any) {
   if (url && url.startsWith("/uploads/")) {
     await deleteOldFile(url);
   }
+  // 同步更新 form.value，确保表单验证正确
+  syncMultiImageValue();
+}
+
+// 同步多图列表到 form.value
+function syncMultiImageValue() {
+  if (!isMultiImageKey(form.value.key)) return;
+  const urls = imageFileList.value
+    .map((f: any) => f.url || f.response?.url)
+    .filter(Boolean);
+  form.value.value = JSON.stringify(urls);
 }
 
 // 清空单图
@@ -377,6 +404,7 @@ onMounted(() => onSearch());
               :headers="uploadHeaders"
               :show-file-list="false"
               :on-success="onSingleImageSuccess"
+              :on-error="onSingleImageError"
               accept="image/*"
             >
               <el-button type="primary">上传新图片</el-button>
@@ -398,6 +426,7 @@ onMounted(() => onSearch());
               :headers="uploadHeaders"
               list-type="picture-card"
               :on-success="onMultiImageSuccess"
+              :on-error="onMultiImageError"
               :on-remove="onMultiImageRemove"
               accept="image/*"
             >

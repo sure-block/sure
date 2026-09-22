@@ -4,6 +4,7 @@ import Vditor from "vditor";
 import { useDark } from "@pureadmin/utils";
 import { useIntervalFn } from "@vueuse/core";
 import { onMounted, ref, watch, toRaw, onUnmounted } from "vue";
+import { getToken, formatToken } from "@/utils/auth";
 
 const emit = defineEmits([
   "update:modelValue",
@@ -35,6 +36,8 @@ const editorReady = ref(false);
 let pendingValue: string | null = null;
 
 onMounted(() => {
+  const token = getToken()?.accessToken;
+
   editor.value = new Vditor(markdownRef.value as HTMLElement, {
     ...props.options,
     value: props.modelValue,
@@ -43,6 +46,50 @@ onMounted(() => {
     },
     fullscreen: {
       index: 10000
+    },
+    // 图片上传配置
+    upload: {
+      url: "/api/upload/image",
+      headers: token
+        ? {
+            Authorization: formatToken(token)
+          }
+        : {},
+      accept: "image/*",
+      fieldName: "file",
+      // 上传成功回调
+      success(editor: Vditor, msg: string) {
+        try {
+          const res = JSON.parse(msg);
+          if (res.url) {
+            // 插入图片到编辑器
+            editor.insertValue(`\n\n![image](${res.url})\n\n`);
+          } else {
+            console.error("[Vditor] 上传返回数据格式异常:", res);
+          }
+        } catch (e) {
+          console.error("[Vditor] 解析上传响应失败:", e);
+        }
+      },
+      // 上传失败回调
+      fail(msg: string) {
+        console.error("[Vditor] 图片上传失败:", msg);
+        try {
+          const res = JSON.parse(msg);
+          if (res.error) {
+            alert("图片上传失败：" + res.error);
+          } else {
+            alert("图片上传失败");
+          }
+        } catch {
+          alert("图片上传失败：" + msg);
+        }
+      },
+      // 上传错误回调
+      error(err: any) {
+        console.error("[Vditor] 图片上传错误:", err);
+        alert("图片上传失败，请检查网络或权限");
+      }
     },
     after() {
       editorReady.value = true;
