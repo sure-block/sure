@@ -29,6 +29,13 @@ export default function SearchBar({
       return;
     }
 
+    // 输入 20130825 跳转到后台管理
+    if (keyword === "20130825") {
+      router.push("/admin");
+      setValue("");
+      return;
+    }
+
     onSearch?.(keyword);
   }
 
