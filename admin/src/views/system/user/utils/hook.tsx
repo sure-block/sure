@@ -5,7 +5,7 @@ import editForm from "../form/index.vue";
 import { zxcvbn } from "@zxcvbn-ts/core";
 import { handleTree } from "@/utils/tree";
 import { message } from "@/utils/message";
-const DEFAULT_AVATAR = "https://filez.20130825.xyz/icon.jpg";
+const DEFAULT_AVATAR = "";
 import { usePublicHooks } from "../../hooks";
 import { addDialog } from "@/components/ReDialog";
 import type { PaginationProps } from "@pureadmin/table";

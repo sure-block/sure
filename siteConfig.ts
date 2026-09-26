@@ -8,7 +8,7 @@ export const siteConfig = {
   bio: "欢迎来到我的博客",
 
   // 头像设置
-  avatarUrl: "https://filez.20130825.xyz/icon.jpg",
+  avatarUrl: "",
 
   // 头像点击跳转链接（后台站点配置 websiteUrl，空则不跳转）
   websiteUrl: "",

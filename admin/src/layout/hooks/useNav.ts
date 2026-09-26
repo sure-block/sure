@@ -16,7 +16,7 @@ import { usePermissionStoreHook } from "@/store/modules/permission";
 import ExitFullscreen from "~icons/ri/fullscreen-exit-fill";
 import Fullscreen from "~icons/ri/fullscreen-fill";
 
-const DEFAULT_AVATAR = "https://filez.20130825.xyz/icon.jpg";
+const DEFAULT_AVATAR = "";
 
 const errorInfo =
   "The current routing configuration is incorrect, please check the configuration";
@@ -145,7 +145,7 @@ export function useNav() {
 
   /** 获取`logo` */
   function getLogo() {
-    return "https://filez.20130825.xyz/icon.jpg";
+    return "";
   }
 
   return {
