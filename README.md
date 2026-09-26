@@ -50,9 +50,7 @@ npm run build
 
 ## 部署
 
-- **Vercel 部署（推荐）：** 参考 [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)
-- **服务器自建部署：** 参考 [docs/SERVER_DEPLOY.md](./docs/SERVER_DEPLOY.md)（支持 Docker / PM2 两种方式）
-- **部署踩坑记录：** [DEPLOY_NOTES.md](./DEPLOY_NOTES.md)
+- **Vercel 部署：** 参考 [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)
 
 ## 相关链接
 
