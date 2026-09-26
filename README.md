@@ -2,6 +2,10 @@
 
 基于 [Starhiro](https://github.com/Xinghongia) 开源博客项目进行二次开发与个性化修改的个人博客。
 
+注意：本项目仅为个人开发使用，有一定魔改内容，不建议普通用户（懂代码的也不建议）使用，因为本项目为了方便，在数据库内与源代码之中内嵌了许多个人内容，所以不建议你使用。
+
+vercel部署请使用 [ddmer-1](https://github.com/wryygx/ddmer-1)，使用服务器部署请使用 [Starhiro](https://github.com/Xinghongia)部署。
+
 ## 技术栈
 
 - **前端框架：** Next.js 15 + React 19
