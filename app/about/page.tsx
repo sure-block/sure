@@ -64,7 +64,7 @@ export default async function AboutPage() {
               关于本站
             </h1>
             <p className="text-sm md:text-lg text-indigo-600 dark:text-indigo-400 font-bold tracking-widest uppercase transition-colors duration-700">
-              基于 Starhiro 项目二次开发
+              Hello World!欢迎你的到来
             </p>
           </div>
 
