@@ -413,7 +413,7 @@ VALUES
   ('url', 'https://example.com/', '网站地址', CURRENT_TIMESTAMP),
   ('authorName', 'Admin', '作者名', CURRENT_TIMESTAMP),
   ('bio', '欢迎来到我的博客', '个人简介', CURRENT_TIMESTAMP),
-  ('avatarUrl', '', '头像图片地址', CURRENT_TIMESTAMP),
+  ('avatarUrl', 'https://files-blog-sure.20130825.xyz/icon.jpg', '头像图片地址', CURRENT_TIMESTAMP),
   ('useGradient', 'false', '是否使用渐变背景', CURRENT_TIMESTAMP),
   ('themeColors', '["#a18cd1","#fbc2eb","#a1c4fd","#c2e9fb"]', '主题颜色数组', CURRENT_TIMESTAMP),
   ('bgImages', '[]', '背景图片地址数组（JSON）', CURRENT_TIMESTAMP),

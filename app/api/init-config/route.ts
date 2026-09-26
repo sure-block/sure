@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
       { key: "url", value: "https://example.com/", description: "网站地址" },
       { key: "authorName", value: "Admin", description: "作者名" },
       { key: "bio", value: "欢迎来到我的博客", description: "个人简介" },
-      { key: "avatarUrl", value: "
+      { key: "avatarUrl", value: "https://files-blog-sure.20130825.xyz/icon.jpg", description: "头像图片地址" },
       { key: "useGradient", value: "false", description: "是否使用渐变背景" },
       { key: "themeColors", value: JSON.stringify(["#a18cd1", "#fbc2eb", "#a1c4fd", "#c2e9fb"]), description: "主题颜色数组" },
       { key: "bgImages", value: "[]", description: "背景图片地址数组（JSON）" },

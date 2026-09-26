@@ -44,9 +44,9 @@ export async function generateMetadata(): Promise<Metadata> {
       title: dbConfig.title || siteConfig.title,
       description: dbConfig.bio || siteConfig.bio,
       icons: {
-        icon: "",
-        shortcut: "",
-        apple: "",
+        icon: "https://files-blog-sure.20130825.xyz/icon.jpg",
+        shortcut: "https://files-blog-sure.20130825.xyz/icon.jpg",
+        apple: "https://files-blog-sure.20130825.xyz/icon.jpg",
       },
       alternates: {
         types: {
@@ -59,9 +59,9 @@ export async function generateMetadata(): Promise<Metadata> {
       title: siteConfig.title,
       description: siteConfig.bio,
       icons: {
-        icon: "",
-        shortcut: "",
-        apple: "",
+        icon: "https://files-blog-sure.20130825.xyz/icon.jpg",
+        shortcut: "https://files-blog-sure.20130825.xyz/icon.jpg",
+        apple: "https://files-blog-sure.20130825.xyz/icon.jpg",
       },
       alternates: {
         types: {
