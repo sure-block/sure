@@ -21,6 +21,7 @@ import dockerfile from "highlight.js/lib/languages/dockerfile";
 import makefile from "highlight.js/lib/languages/makefile";
 import plaintext from "highlight.js/lib/languages/plaintext";
 import { X } from "lucide-react";
+import { useConfigValue } from "@/components/providers/SiteConfigProvider";
 
 hljs.registerLanguage("typescript", typescript);
 hljs.registerLanguage("ts", typescript);
@@ -74,6 +75,7 @@ export default function PostDetailPage() {
   const contentRef = useRef<HTMLDivElement>(null);
   const articleRef = useRef<HTMLDivElement>(null);
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const defaultCover = useConfigValue("defaultPostCover", "");
 
   useEffect(() => {
     if (!slug) return;
@@ -230,6 +232,9 @@ export default function PostDetailPage() {
     })
     : "";
 
+  // 获取实际使用的封面图
+  const coverUrl = post.cover || defaultCover || "";
+
   return (
     <div ref={articleRef} className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12">
       <ReadingProgress contentRef={contentRef} />
@@ -256,10 +261,10 @@ export default function PostDetailPage() {
         className="rounded-3xl shadow-2xl overflow-hidden bg-white/60 dark:bg-slate-900/70 backdrop-blur-2xl border border-white/30 dark:border-white/10"
       >
         {/* 封面图 */}
-        {post.cover && (
+        {coverUrl && (
           <div className="relative w-full h-40 sm:h-56 md:h-72 overflow-hidden">
             <Image
-              src={post.cover}
+              src={coverUrl}
               alt={post.title}
               fill
               className="object-cover"
