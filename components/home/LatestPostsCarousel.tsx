@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { BookOpen, Clock, Eye, Heart } from "lucide-react";
 import { getPosts, type PostItem } from "@/app/api";
+import { useConfigValue } from "@/components/providers/SiteConfigProvider";
 
 function relativeDate(dateStr: string | null): string {
   if (!dateStr) return "";
@@ -20,11 +21,12 @@ function relativeDate(dateStr: string | null): string {
 
 export default function LatestPostsCarousel() {
   const [posts, setPosts] = useState<PostItem[]>([]);
+  const defaultCover = useConfigValue("defaultPostCover", "");
 
   useEffect(() => {
     getPosts({ status: "published", page: 1, size: 4 })
       .then(setPosts)
-      .catch(() => { });
+      .catch(() => {});
   }, []);
 
   if (!posts.length) {
@@ -39,63 +41,67 @@ export default function LatestPostsCarousel() {
   const hero = posts[0];
   const rest = posts.slice(1);
 
+  // 获取实际使用的封面图
+  const getCoverUrl = (post: PostItem) => post.cover || defaultCover || "";
+
   return (
     <div className="flex flex-col gap-3 h-full">
       {/* Hero 大图 */}
-      <Link
-        href={`/posts/${hero.slug}`}
-        className="relative flex-1 min-h-[160px] md:min-h-[160px] rounded-3xl overflow-hidden group cursor-pointer"
-      >
-        <Image
-          src={hero.cover || "/images/default-cover.jpg"}
-          alt={hero.title}
-          fill
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-          sizes="(max-width: 768px) 100vw, 66vw"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+      {getCoverUrl(hero) && (
+        <Link
+          href={`/posts/${hero.slug}`}
+          className="relative flex-1 min-h-[160px] md:min-h-[160px] rounded-3xl overflow-hidden group cursor-pointer"
+        >
+          <Image
+            src={getCoverUrl(hero)}
+            alt={hero.title}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, 66vw"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
 
-        {/* 底部信息 */}
-        <div className="absolute bottom-0 left-0 right-0 p-5">
-          <h3 className="text-xl md:text-2xl font-bold text-white mb-1.5 line-clamp-1">
-            {hero.title}
-          </h3>
-          <p className="text-white/70 text-sm line-clamp-1 mb-2">
-            {hero.description}
-          </p>
-          <div className="flex items-center gap-4 text-white/50 text-xs">
-            <span>{relativeDate(hero.published_at)}</span>
-            <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3" /> {hero.reading_time} 分钟
-            </span>
-            <span className="flex items-center gap-1">
-              <Eye className="w-3 h-3" /> {hero.views}
-            </span>
-            <span className="flex items-center gap-1">
-              <Heart className="w-3 h-3" /> {hero.likes}
-            </span>
+          {/* 底部信息 */}
+          <div className="absolute bottom-0 left-0 right-0 p-5">
+            <h3 className="text-xl md:text-2xl font-bold text-white mb-1.5 line-clamp-1">
+              {hero.title}
+            </h3>
+            <p className="text-white/70 text-sm line-clamp-1 mb-2">
+              {hero.description}
+            </p>
+            <div className="flex items-center gap-4 text-white/50 text-xs">
+              <span>{relativeDate(hero.published_at)}</span>
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3" /> {hero.reading_time} 分钟
+              </span>
+              <span className="flex items-center gap-1">
+                <Eye className="w-3 h-3" /> {hero.views}
+              </span>
+              <span className="flex items-center gap-1">
+                <Heart className="w-3 h-3" /> {hero.likes}
+              </span>
+            </div>
           </div>
-        </div>
-      </Link>
+        </Link>
+      )}
 
       {/* 小卡片行 */}
       {rest.length > 0 && (
         <div className="grid grid-cols-3 gap-3">
-          {rest.map((post) => (
+          {rest.map((post) => getCoverUrl(post) && (
             <Link
               key={post.id}
               href={`/posts/${post.slug}`}
               className="relative rounded-2xl overflow-hidden group cursor-pointer h-[80px]"
             >
               <Image
-                src={post.cover || "/images/default-cover.jpg"}
+                src={getCoverUrl(post)}
                 alt={post.title}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="200px"
               />
-              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors duration-300" />
               <div className="absolute inset-0 p-3 flex flex-col justify-end">
                 <h4 className="text-xs font-bold text-white line-clamp-1">
                   {post.title}
