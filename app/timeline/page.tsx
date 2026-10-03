@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Clock, BookOpen, Eye, Heart, Calendar } from "lucide-react";
 import { getPosts, type PostItem } from "@/app/api";
+import { useConfigValue } from "@/components/providers/SiteConfigProvider";
 
 // ── 分类样式 ──────────────────────────────────────────
 
@@ -89,6 +90,7 @@ export default function TimelinePage() {
   const [visibleRangeKey, setVisibleRangeKey] = useState(0);
   const rafRef = useRef<number>(0);
   const viewWidthRef = useRef(1200);
+  const defaultCover = useConfigValue("defaultPostCover", "");
 
   useEffect(() => {
     const check = () => {
@@ -479,13 +481,13 @@ export default function TimelinePage() {
                       <div
                         className={`w-full h-full rounded-xl md:rounded-2xl overflow-hidden border border-white/40 dark:border-white/10 shadow-lg transition-all duration-300 group ${isMobile ? "bg-white/80 dark:bg-slate-800/90" : "bg-white/60 dark:bg-slate-800/70 backdrop-blur-xl"}`}
                       >
-                        {post.cover ? (
+                        {post.cover || defaultCover ? (
                           <div
                             className="relative overflow-hidden"
                             style={{ height: isMobile ? 70 : 100 }}
                           >
                             <img
-                              src={post.cover}
+                              src={post.cover || defaultCover}
                               alt=""
                               loading="lazy"
                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
