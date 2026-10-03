@@ -55,7 +55,6 @@
     "lucide-react": "^1.14.0",
     "marked": "^18.0.3",
     "marked-highlight": "^2.2.4",
-    "mathjs": "^15.2.0",
     "music-metadata": "^11.13.0",
     "next": "16.2.4",
     "pg": "^8.21.0",
