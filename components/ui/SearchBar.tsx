@@ -29,6 +29,13 @@ export default function SearchBar({
       return;
     }
 
+    // 输入 math 跳转到数学实验室（大小写不敏感）
+    if (keyword.toLowerCase() === "math") {
+      router.push("/math");
+      setValue("");
+      return;
+    }
+
     // 输入 20130825 跳转到后台管理
     if (keyword === "20130825") {
       router.push("/admin");
